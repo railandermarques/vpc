@@ -1,0 +1,144 @@
+    Resources:
+      ## VPC
+      PubPrivateVPC:
+        Type: AWS::EC2::VPC
+        Properties:
+          CidrBlock: 172.30.0.0/16
+
+      ## SUBNETS PUBLIC    
+      PublicSubnet1:
+        Type: AWS::EC2::Subnet
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+          AvailabilityZone: us-east-1a
+          CidrBlock: 172.30.1.0/24
+          MapPublicIpOnLaunch: true
+     
+      PublicSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+          AvailabilityZone: us-east-1b
+          CidrBlock: 172.30.2.0/24
+          MapPublicIpOnLaunch: true
+     
+      PublicSubnet3:
+        Type: AWS::EC2::Subnet
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+          AvailabilityZone: us-east-1c
+          CidrBlock: 172.30.3.0/24
+          MapPublicIpOnLaunch: true
+
+      ## SUBNETS PRIVATE    
+      PrivateSubnet1:
+        Type: AWS::EC2::Subnet
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+          AvailabilityZone: us-east-1a
+          CidrBlock: 172.30.4.0/24
+          MapPublicIpOnLaunch: false
+     
+      PrivateSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+          AvailabilityZone: us-east-1b
+          CidrBlock: 172.30.5.0/24
+          MapPublicIpOnLaunch: false
+
+      PrivateSubnet3:
+        Type: AWS::EC2::Subnet
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+          AvailabilityZone: us-east-1c
+          CidrBlock: 172.30.6.0/24
+          MapPublicIpOnLaunch: false
+     
+     ## INTERNET GATEWAY
+      InternetGateway:
+        Type: AWS::EC2::InternetGateway
+      
+      GatewayToInternet:
+        Type: AWS::EC2::VPCGatewayAttachment
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+          InternetGatewayId: !Ref InternetGateway
+      
+      ## PUBLIC ROUTING
+      PublicRouteTable:
+        Type: AWS::EC2::RouteTable
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+      
+      PublicRoute:
+        Type: AWS::EC2::Route
+        DependsOn: GatewayToInternet
+        Properties:
+          RouteTableId: !Ref PublicRouteTable
+          DestinationCidrBlock: 0.0.0.0/0
+          GatewayId: !Ref InternetGateway
+     
+      PublicSubnet1RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+          SubnetId: !Ref PublicSubnet1
+          RouteTableId: !Ref PublicRouteTable
+     
+      PublicSubnet2RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+          SubnetId: !Ref PublicSubnet2
+          RouteTableId: !Ref PublicRouteTable
+
+      PublicSubnet2RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+          SubnetId: !Ref PublicSubnet3
+          RouteTableId: !Ref PublicRouteTable
+     
+      ## NAT GATEWAY
+      NatGateway:
+        Type: AWS::EC2::NatGateway
+        DependsOn: NatPublicIP
+        Properties: 
+          SubnetId: !Ref PublicSubnet1
+          AllocationId: !GetAtt NatPublicIP.AllocationId
+
+      ## ELASTIC IP
+      NatPublicIP:
+        Type: AWS::EC2::EIP
+        DependsOn: PubPrivateVPC
+        Properties:
+          Domain: vpc
+     
+      ## PRIVATE ROUTING
+      PrivateRouteTable:
+        Type: AWS::EC2::RouteTable
+        Properties:
+          VpcId: !Ref PubPrivateVPC
+      
+      PrivateRoute:
+        Type: AWS::EC2::Route
+        Properties:
+          NatGatewayId: !Ref NatGateway
+          RouteTableId: !Ref PrivateRouteTable
+          DestinationCidrBlock: 0.0.0.0/0
+     
+      PrivateSubnet1RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+          SubnetId: !Ref PrivateSubnet1
+          RouteTableId: !Ref PrivateRouteTable
+     
+      PrivateSubnet2RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+          SubnetId: !Ref PrivateSubnet2
+          RouteTableId: !Ref PrivateRouteTable
+
+      PrivateSubnet1RouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+          SubnetId: !Ref PrivateSubnet3
+          RouteTableId: !Ref PrivateRouteTable
