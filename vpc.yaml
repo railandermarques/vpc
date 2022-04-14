@@ -91,7 +91,7 @@
           SubnetId: !Ref PublicSubnet2
           RouteTableId: !Ref PublicRouteTable
 
-      PublicSubnet2RouteTableAssociation:
+      PublicSubnet3RouteTableAssociation:
         Type: AWS::EC2::SubnetRouteTableAssociation
         Properties:
           SubnetId: !Ref PublicSubnet3
@@ -137,7 +137,7 @@
           SubnetId: !Ref PrivateSubnet2
           RouteTableId: !Ref PrivateRouteTable
 
-      PrivateSubnet1RouteTableAssociation:
+      PrivateSubnet3RouteTableAssociation:
         Type: AWS::EC2::SubnetRouteTableAssociation
         Properties:
           SubnetId: !Ref PrivateSubnet3
