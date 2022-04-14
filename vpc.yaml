@@ -1,11 +1,11 @@
     Resources:
-      ## VPC
+      ## VPC PADRAO
       PubPrivateVPC:
         Type: AWS::EC2::VPC
         Properties:
           CidrBlock: 172.30.0.0/16
 
-      ## SUBNETS PUBLIC    
+      ## PUBLIC SUBNETS     
       PublicSubnet1:
         Type: AWS::EC2::Subnet
         Properties:
@@ -30,7 +30,7 @@
           CidrBlock: 172.30.3.0/24
           MapPublicIpOnLaunch: true
 
-      ## SUBNETS PRIVATE    
+      ## PRIVATE SUBNETS
       PrivateSubnet1:
         Type: AWS::EC2::Subnet
         Properties:
